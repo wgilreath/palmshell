@@ -1,2 +1,4 @@
-# palmshell
-Google Pathways API Gemini Bash Shell
+# PaLM shell
+Google Pathways (PaLM) LLM API now Gemini AI Bash Shell script.
+
+
