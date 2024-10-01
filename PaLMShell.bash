@@ -73,7 +73,7 @@ do
   -s \
   -H 'Content-Type: application/json' \
   -d '{"contents":[{"parts":[{"text":'"\"$prompt_line\""'}]}]}' \
-  -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$PALM_KEY" | jq '.candidates.[] .content .parts[] .text' | sed 's/\\n/\n/g' | tee -a $log_file 
+  -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$PALM_KEY" | jq '.candidates[].content.parts[].text' | sed 's/\\n/\n/g' | tee -a $log_file 
  
   echo | tee -a $log_file ##PaLM-$date_time.log
 done
