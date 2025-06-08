@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 #
 #
-# Title: PaLM Shell - Pathways Language Model Shell. Now Google Gemini AI.
+# Title: PaLM Shell - Pathways Language Model Shell. Now Google Gemini.
 #
 # Description: A interactive prompt-response shell that uses RESTful API calls
 #              to send prompts and receive the responses, display, and log the
-#              results from Google Gemini API.
+#              results from Google Gemini API. PaLM was original name for 
+#              Pathways API LLM Model.
+#
 #
 # By William F. Gilreath (will@wfgilreath.xyz)
-# Version 2.0  09/30/2024
+# Version 2.1  06/07/2024
 #
-# Copyright © 2024 All Rights Reserved.
+# Copyright © 2025 All Rights Reserved.
 #
 # License: This software is subject to the terms of the GNU General Public License (GPL)
 #     version 3.0 available at the following link: http://www.gnu.org/copyleft/gpl.html.
@@ -19,18 +21,32 @@
 #     to use this software.
 #
 # Updated with new Google Gemini API 9-30-2024
+# Updated with $PALM_MODEL to more easily change Google Gemini model 6-7-2025
+#
 #
 
+PALM_KEY="DML6817f041-73d3-4740-82a1-c06e584e7393"  #pseudo-value ROT13 ;-)
+
+# gemini models used list of models:
+# https://ai.google.dev/gemini-api/docs/models
 #
-# Get Google Gemini formerly PaLM Key
-#
-PALM_KEY="NHGUBE-PBATENGF-BA-XABJVAT-EBG13-PBQVAT" #pseudo-value
+PALM_MODEL0="gemini-1.5-flash-latest:generateContent" #expires by Sep 24 2025
+PALM_MODEL1="gemini-2.0-flash:generateContent" 
+PALM_MODEL2="gemini-2.5-flash-preview-05-20:generateContent"
+
+PALM_MODEL="gemini-2.0-flash:generateContent" #gemini model used in script
 
 #
-# Echo header about script, version, all that fun stuff.
+# copyright and version of PaLMShell script
 #
-echo "PaLM Shell v2.0 (c) 2024 William F. Gilreath"
-echo "All Rights Reserved. License is GPLv3       "
+VERSION="v2.1"
+COPYRIGHT="2025"
+
+#
+# PaLM shell header
+#
+echo "PaLM Shell $VERSION (c) $COPYRIGHT William F. Gilreath"
+echo "All Rights Reserved. License is GPLv3                 "
 echo
 
 #
@@ -41,7 +57,7 @@ then
   exit 1
 fi
 
-date_time=$(date | date | tr '  ' '-' | tr ':' '-')
+date_time=$(date | date | tr '  ' '-' | tr ':' '-' | tr -s '--' '-')
 log_file="PaLM-$date_time.log"
 
 echo
@@ -53,31 +69,42 @@ echo
 #
 while :
 do
+  # print prompt and read line into $prompt_line
   echo -n "PaLM>"
-  read prompt_line
+  read -r prompt_line
 
-  #'bye' is bye/exit/quit PaLM Shell
+  # command 'bye' is bye/exit/quit PaLM Shell
   if [ "$prompt_line" == "bye" ]; then
     break
   fi
 
-  #check if input is blank line avoid empty prompt to Gemini AI
+  # command 'clear' is 'clear' console window with external shell command
+  if [ "$prompt_line" == "clear" ]; then
+    clear
+    continue
+  fi
+  
+  # check if input is blank line avoid empty prompt
   if [ -z "$prompt_line" ]; then
     continue
   fi
 
-  echo "Prompt: '$prompt_line'" | tee -a $log_file #PaLM-$date_time.log
-  echo | tee -a $log_file #PaLM-$date_time.log
+  echo "Prompt: '$prompt_line'" | tee -a "$log_file" #PaLM-$date_time.log
+
+  echo | tee -a "$log_file" #PaLM-$date_time.log
 
   curl \
   -s \
   -H 'Content-Type: application/json' \
   -d '{"contents":[{"parts":[{"text":'"\"$prompt_line\""'}]}]}' \
-  -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$PALM_KEY" | jq '.candidates[].content.parts[].text' | sed 's/\\n/\n/g' | tee -a $log_file 
+  -X POST "https://generativelanguage.googleapis.com/v1beta/models/$PALM_MODEL?key=$PALM_KEY" | jq '.candidates[].content.parts[].text' | sed 's/\\n/\n/g' | tee -a "$log_file" 
  
-  echo | tee -a $log_file ##PaLM-$date_time.log
+  echo | tee -a "$log_file" ##PaLM-$date_time.log
+
 done
 
-echo "All done! Exiting...Have a nice day!" | tee -a $log_file #PaLM-$date_time.log
+echo ""
+echo "All done! Exiting...Have a nice day!"
+echo ""
 
 exit 0
